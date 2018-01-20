@@ -1,1 +1,1 @@
-# leanning-vue-sample
+#learn-vue-sample
