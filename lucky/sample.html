@@ -1,0 +1,192 @@
+<html>
+
+<head>
+  <link href="https://cdn.bootcss.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet">
+  <link href="./css/common.css" rel="stylesheet">
+
+  <script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+  <script src="https://cdn.bootcss.com/vue/2.5.13/vue.min.js"></script>
+  <script src="https://cdn.bootcss.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+  <script type="text/javascript" src="./js/firework.js"></script>
+</head>
+
+<body>
+  <div id="app" class="container">
+    <div class="jumbotron">
+      <h1 class="display-4">抽奖活动</h1>
+      <p class="lead">为庆祝我们公司在2017年取得骄人的成绩,感谢各位的支持和信任。本公司特推出年会抽奖, 欢度新的一年到来。</p>
+      <hr class="my-4">
+      <p>本着公正公平原则，抽奖源码放在 github 供大家分析。</p>
+
+      <div class="form-row align-items-center">
+        <div class="col-auto">
+          <div class="input-group mb-2">
+            <div class="input-group-prepend">
+              <div class="input-group-text">人数</div>
+            </div>
+            <input type="number" class="form-control" v-bind:placeholder="luckyNumbers" v-model="luckyNumbers">
+            <div class="col-auto">
+              <button type="button" class="btn btn-primary" v-if="!isRunning" v-on:click="start" data-toggle="modal" data-target="#lucky-dialog">开始</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        中奖名单
+      </div>
+      <div class="card-body">
+        <ol>
+          <user-info v-for="user in luckyUsers" v-bind:user="user" v-bind:key="user.id">
+          </user-info>
+        </ol>
+      </div>
+    </div>
+    <h4></h4>
+    <div class="card">
+      <div class="card-header">
+        参与用户
+      </div>
+      <div class="card-body">
+        <ol>
+          <user-info v-for="user in users" v-bind:user="user" v-bind:key="user.id">
+          </user-info>
+        </ol>
+      </div>
+    </div>
+    <div id="lucky-dialog" class="modal" tabindex="-1" role="dialog">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">抽奖啦~~</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div>
+              <img class="img-thumbnail" src="https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1516456058052&di=56bd7dabfb44bf6e2e47195e7b6dbab4&imgtype=0&src=http%3A%2F%2Fcms-bucket.nosdn.127.net%2F7395682b52b144a49fd71e10794f4a3020170703091454.gif">
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary" v-on:click="lucky">抽奖</button>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal" v-on:click="stop">中止</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="lucky-users-dialog" class="modal" tabindex="-1" role="dialog">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content modal-content-x">
+          <div class="modal-header">
+            <h5 class="modal-title">中奖名单</h5>
+          </div>
+          <div class="modal-body">
+            <div>
+              <ol>
+                <user-info v-for="user in luckyUsers" v-bind:user="user" v-bind:key="user.id">
+                </user-info>
+              </ol>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <a class="btn btn-secondary" href="javascript:location.reload();">确认</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+
+</html>
+<script>
+  // 构建参与用户名单
+  const users = function () {
+    let users = [];
+    for (let i = 0; i < 100; i++) {
+      users.push({ id: i + 1, name: 'name' + (i + 1) });
+    }
+
+    return users;
+  }();
+
+  // 构建显示用户的信息
+  Vue.component('user-info', {
+    props: ['user'],
+    template: '<li>{{user.name}}</li>'
+  });
+
+  var app = new Vue({
+    el: '#app',
+    data: {
+      users: users,    // 总用户
+      index: 1,        // 当前抽取到的幸运用户的 index
+      luckyNumbers: 1, // 人数
+      luckyUsers: [],  // 幸运用户
+      isRunning: false // 转盘标志
+    },
+    methods: {
+      start() {
+        this.isRunning = true;
+        this.luckyUsers = [];
+        this.run();
+      },
+      lucky() {
+        if (!this.isRunning) {
+          alert('请重新开始');
+          return;
+        }
+
+        // 可能是幸运的用户
+        let mayBeLuckyUser = this.users[this.index];
+
+        // 对当前的幸运用户进行排重，如果已经是了，就丢掉。在额外执行一次转盘 run
+        let repeat = false;
+        this.luckyUsers.forEach(function (item) {
+          if (item.id === mayBeLuckyUser.id) {
+            repeat = true;
+          }
+        });
+
+        if (repeat) {
+          setTimeout(this.lucky, 1);
+          return;
+        }
+
+        this.luckyUsers.push(this.users[this.index]);
+
+        if (this.luckyUsers.length >= parseInt(this.luckyNumbers, 10)) {
+          this.isRunning = false;
+          $('#lucky-dialog').modal('hide');
+
+          $("#app").fireworks({
+            width: "100%",
+            height: "100%"
+          });
+
+          setTimeout(this.showLuckyUsers, 1000);
+        }
+      },
+      stop() {
+        this.isRunning = false;
+      },
+      run() {
+        if (!this.isRunning) {
+          return;
+        }
+
+        this.index++;
+
+        if (this.index >= users.length) {
+          this.index = 1;
+        }
+
+        setTimeout(this.run, 1);
+      },
+      showLuckyUsers() {
+        $('#lucky-users-dialog').modal('show')
+      }
+    }
+  });
+</script>
