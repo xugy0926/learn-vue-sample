@@ -141,7 +141,7 @@
         // 可能是幸运的用户
         let mayBeLuckyUser = this.users[this.index];
 
-        // 对当前的幸运用户进行排重，如果已经是了，就丢掉。在额外执行一次转盘 run
+        // 对当前的幸运用户进行排重，如果已经是了，就丢掉。在额外抽取一次幸运用户
         let repeat = false;
         this.luckyUsers.forEach(function (item) {
           if (item.id === mayBeLuckyUser.id) {
