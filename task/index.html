@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <link href="https://cdn.bootcss.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+  <script src="https://cdn.bootcss.com/vue/2.5.13/vue.min.js"></script>
+  <script src="https://cdn.bootcss.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+  <script src="https://cdn.bootcss.com/axios/0.17.1/axios.min.js"></script>
+</head>
+
+<body>
+  <div id="app" class="container">
+    <div class="row justify-content-md-center mt-5">
+      <!-- TODO: 如何把 menu 抽离成 组件 -->
+      <div class="col-md-1">
+        <div class="btn-group-vertical" role="group" aria-label="Button group with nested dropdown">
+          <button type="button" class="btn btn-secondary" v-on:click="onSelected(item.tag)" v-for="item in menus">{{ item.text}}</button>
+        </div>
+      </div>
+
+      <!-- TODO: 如何把这部分抽离成一个 task-list 组件 -->
+      <div class="col-md-6" v-if="currentMenuTag === 'working'">
+        <div class="list-group">
+          <task-item v-bind:item="item" v-bind:tag="'working'" v-for="item in tasks"></task-item>
+        </div>
+      </div>
+
+      <div class="col-md-6" v-else>
+        <div class="list-group">
+          <task-item v-bind:item="item" v-bind:tag="'completed'" v-for="item in tasks"></task-item>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+
+</html>
+<script>
+  Vue.component('task-item', {
+    props: ['item', 'tag'],
+    template: `
+      <a href="#" class="list-group-item list-group-item-action flex-column align-items-start" v-if="item.tag === tag">
+        <div class="d-flex w-100 justify-content-between">
+          <h5 class="mb-1">{{ item.title }}</h5>
+          <small>{{ item.createAt }}</small>
+        </div>
+        <p class="mb-1">{{ item.content }}</p>
+        <small v-if="item.completed">已完成</small>
+        <div class="float-right" v-else>
+          <button class="btn btn-primary btn-sm" v-on:click="onCompleted">完成</button>
+        </div>
+      </a>
+    `,
+    methods: {
+      onCompleted() {
+        console.log('task-item onCompleted');
+        // TODO: 如何把点击时间传递给父层
+      }
+    }
+  })
+
+  var tasks = function () {
+    let tasks = [];
+    for (let i = 0; i < 10; i++) {
+      tasks.push({
+        title: 'task' + (i + 1),
+        content: 'content' + (i + 1),
+        tag: 'working',
+        completed: false,
+        createAt: (new Date()).toString()
+      })
+    }
+
+    return tasks;
+  }();
+
+  var app = new Vue({
+    el: '#app',
+    data: {
+      menus: [{
+          tag: 'working',
+          text: '未完成'
+        },
+        {
+          tag: 'completed',
+          text: '完成'
+        },
+      ],
+      currentMenuTag: '',
+      tasks: tasks
+    },
+    methods: {
+      onSelected(tag) {
+        this.currentMenuTag = tag;
+      },
+      onCompleted() {
+
+      }
+    }
+  });
+
+  app.currentMenuTag = app.menus[0].tag;
+</script>
