@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <link href="https://cdn.bootcss.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+  <script src="https://cdn.bootcss.com/vue/2.5.13/vue.js"></script>
+  <script src="https://cdn.bootcss.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+  <script src="https://cdn.bootcss.com/axios/0.17.1/axios.min.js"></script>
+  <script src="https://cdn.bootcss.com/node-uuid/1.4.8/uuid.min.js"></script>
+  <script src="https://cdn.bootcss.com/date-fns/123/date_fns.min.js"></script>
+  <script src="https://cdn.bootcss.com/ramda/0.25.0/ramda.min.js"></script>
+</head>
+
+<body>
+  <div id="app" class="container">
+    <div class="row justify-content-md-center mt-5">
+      <task-menu v-on:click-select="onSelected" v-bind:items="menus"></task-menu>
+      <task-list v-bind:tag="currentMenuStatus" v-on:click-complete="onCompleted" v-bind:items="tasks"></task-list>
+    </div>
+  </div>
+</body>
+
+</html>
+<script>
+  Vue.component('task-menu', {
+    props: ['items'],
+    template: `
+      <div class="col-md-1">
+        <div class="btn-group-vertical" role="group" aria-label="Button group with nested dropdown">
+          <button type="button" class="btn btn-secondary" v-on:click="onSelected(item.tag)" v-for="item in items">{{ item.text}}</button>
+        </div>
+      </div>
+    `,
+    methods: {
+      onSelected(tag) {
+        this.$emit('click-select', tag);
+      }
+    }
+  });
+
+  Vue.component('task-item', {
+    props: ['item', 'tag'],
+    template: `
+      <a href="#" class="list-group-item list-group-item-action flex-column align-items-start" v-if="item.completed === tag">
+        <div class="d-flex w-100 justify-content-between">
+          <h5 class="mb-1">{{ item.title }}</h5>
+          <small>{{ item.createAt }}</small>
+        </div>
+        <p class="mb-1">{{ item.content }}</p>
+        <small v-if="item.completed">已完成</small>
+        <div class="float-right" v-else>
+          <button class="btn btn-primary btn-sm" v-on:click="onCompleted(item.id)">完成</button>
+        </div>
+      </a>
+    `,
+    methods: {
+      onCompleted(id) {
+        this.$emit('click-complete', id);
+      }
+    }
+  });
+
+  Vue.component('task-list', {
+    props: ['items', 'tag'],
+    template: `
+      <div class="col-md-6">
+        <div class="list-group">
+          <task-item v-bind:item="item" v-on:click-complete="onCompleted" v-bind:tag="tag" v-for="item in items"></task-item>
+        </div>
+      </div>
+    `,
+    methods: {
+      onCompleted(id) {
+        this.$emit('click-complete', id);
+      }
+    }
+  });
+
+  Vue.component('app', {
+    
+  })
+
+  var tasks = function () {
+    let tasks = [];
+    for (let i = 0; i < 10; i++) {
+      tasks.push({
+        id: uuid(),
+        title: 'task' + (i + 1),
+        content: 'content' + (i + 1),
+        completed: false,
+        createAt: (new Date()).toString()
+      })
+    }
+
+    return tasks;
+  }();
+
+  var app = new Vue({
+    el: '#app',
+    data: {
+      menus: [{
+          tag: false,
+          text: '未完成'
+        },
+        {
+          tag: true,
+          text: '完成'
+        },
+      ],
+      currentMenuStatus: false,
+      tasks: tasks
+    },
+    methods: {
+      onSelected(tag) {
+        this.currentMenuStatus = tag;
+      },
+      onCompleted(id) {
+        var index = R.findIndex(R.propEq('id', id))(this.tasks);
+        this.tasks[index].completed = true;
+      }
+    }
+  });
+
+  app.currentMenuStatus = app.menus[0].tag;
+</script>
