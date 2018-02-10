@@ -11,6 +11,7 @@
 import TaskMenu from './components/TaskMenu.vue';
 import TaskList from './components/TaskList.vue';
 import axios from 'axios';
+import R from 'ramda';
 
 export default {
   name: 'app',
