@@ -105,6 +105,7 @@
       onCompleted(id) {
         var index = R.findIndex(R.propEq('id', id))(this.tasks);
         this.tasks[index].completed = true;
+        this.save();
       },
       save() {
         axios.put('https://api.myjson.com/bins/86i81', this.tasks)
