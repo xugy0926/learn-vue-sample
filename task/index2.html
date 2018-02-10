@@ -93,7 +93,7 @@
       tasks: [] // [{id, title, content, completed, createAt, completeAt }]
     },
     beforeCreate() {
-      axios.get('https://api.myjson.com/bins/86i81')
+      axios.get('https://api.myjson.com/bins/oufit')
         .then(response => response.data)
         .then(data => (this.tasks = data))
         .catch(console.log);
@@ -105,9 +105,10 @@
       onCompleted(id) {
         var index = R.findIndex(R.propEq('id', id))(this.tasks);
         this.tasks[index].completed = true;
+        this.save();
       },
       save() {
-        axios.put('https://api.myjson.com/bins/86i81', this.tasks)
+        axios.put('https://api.myjson.com/bins/oufit', this.tasks)
           .then(response => response.data)
           .then(data => alert('更新成功'))
           .catch(console.log);

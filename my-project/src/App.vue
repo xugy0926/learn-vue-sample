@@ -11,7 +11,7 @@
 import TaskMenu from './components/TaskMenu.vue';
 import TaskList from './components/TaskList.vue';
 import axios from 'axios';
-import R from 'ramda';
+import * as R from 'ramda';
 
 export default {
   name: 'app',
@@ -37,7 +37,7 @@ export default {
   },
   beforeCreate() {
     axios
-      .get('https://api.myjson.com/bins/86i81')
+      .get('https://api.myjson.com/bins/oufit')
       .then(response => response.data)
       .then(data => (this.tasks = data))
       .catch(console.log);
@@ -53,7 +53,7 @@ export default {
     },
     save() {
       axios
-        .put('https://api.myjson.com/bins/86i81', this.tasks)
+        .put('https://api.myjson.com/bins/oufit', this.tasks)
         .then(response => response.data)
         .then(data => alert('更新成功'))
         .catch(console.log);
